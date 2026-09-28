@@ -9,7 +9,7 @@ const eventSchema = new Schema({
     finish_time: { type: String, required: true },
     info: { type: String, default: "" },
     event_type_id: { type: Schema.Types.ObjectId, ref: "EventType" },
-    human_category_id: { type: Schema.Types.ObjectId, ref: "HumanCt" },
+    human_category_id: { type: Schema.Types.ObjectId, ref: "HumanCategory" },
     venue_id: { type: Schema.Types.ObjectId, ref: "Venue" },
     lang_id: { type: Number, required: true, default: 1 },
     release_date: { type: Date, default: Date.now }
