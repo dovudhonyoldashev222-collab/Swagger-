@@ -1,9 +1,27 @@
-const { CartItem } = require("../model/cartItemSchema");
+// Modelni xavfsiz yuklash (destrukturizatsiya bo'lsa ham, to'g'ridan-to'g'ri bo'lsa ham ishlaydi)
+const cartItemImport = require("../model/cartItemSchema");
+const CartItem = cartItemImport.CartItem || cartItemImport;
 
 // ---------------------- Create CartItem ---------------
 const createCartItem = async (req, res) => {
     try {
         const { ticket_id, cart_id } = req.body;
+
+        // Model mavjudligini tekshirish
+        if (!CartItem) {
+            return res.status(500).json({
+                success: false,
+                message: "CartItem modeli fayldan to'g'ri yuklanmadi (undefined)!"
+            });
+        }
+
+        // Majburiy maydonlar tekshiruvi
+        if (!ticket_id || !cart_id) {
+            return res.status(400).json({
+                success: false,
+                message: "ticket_id va cart_id kiritilishi shart!"
+            });
+        }
 
         const existingCartItem = await CartItem.findOne({ ticket_id, cart_id });
 
@@ -12,23 +30,25 @@ const createCartItem = async (req, res) => {
                 success: false,
                 message: "Bu chipta savatchaga allaqachon qo'shilgan"
             });
-        } else {
-            const newCartItem = new CartItem({
-                ticket_id,
-                cart_id
-            });
-
-            await newCartItem.save();
-            return res.status(201).json({
-                success: true,
-                message: "Chipta savatchaga muvaffaqiyatli qo'shildi",
-                data: newCartItem,
-            });
         }
+
+        const newCartItem = new CartItem({
+            ticket_id,
+            cart_id
+        });
+
+        await newCartItem.save();
+        return res.status(201).json({
+            success: true,
+            message: "Chipta savatchaga muvaffaqiyatli qo'shildi",
+            data: newCartItem,
+        });
     } catch (err) {
+        console.error("CartItem xatosi:", err);
         return res.status(500).json({
             success: false,
             message: "Server xatosi: Savatchaga chipta qo'shish jarayonida xato yuz berdi.",
+            aniq_sababi: err.message
         });
     }
 };
@@ -49,6 +69,7 @@ const getCartItems = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Server xatosi: Savat elementlarini olishda xato yuz berdi.",
+            aniq_sababi: error.message
         });
     }
 };
@@ -71,7 +92,10 @@ const getCartItemById = async (req, res) => {
         res.status(200).json({ message: "Savat elementi topildi", cartItem });
     } catch (err) {
         console.error(err);
-        res.status(500).json({ message: "Server xatosi" });
+        res.status(500).json({ 
+            message: "Server xatosi", 
+            aniq_sababi: err.message 
+        });
     }
 };
 
@@ -96,7 +120,8 @@ const searchCartItem = async (req, res) => {
     } catch (err) {
         res.status(500).json({
             success: false,
-            message: "Server xatosi"
+            message: "Server xatosi",
+            aniq_sababi: err.message
         });
     }
 };
@@ -129,7 +154,7 @@ const updateCartItem = async (req, res) => {
         res.status(500).json({
             success: false,
             message: "Server xatosi",
-            error: err.message,
+            aniq_sababi: err.message,
         });
     }
 };
@@ -154,7 +179,7 @@ const deleteCartItem = async (req, res) => {
     } catch (err) {
         return res.status(500).json({
             success: false,
-            message: `Server Xatosi ${err.message}`
+            message: `Server Xatosi: ${err.message}`
         });
     }
 };
