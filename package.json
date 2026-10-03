@@ -9,7 +9,7 @@
     "start": "nodemon index.js"
   },
   "keywords": [],
-  "author": "Botirjon",
+  "author": "dovudhon",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
